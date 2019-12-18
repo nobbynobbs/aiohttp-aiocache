@@ -16,6 +16,9 @@ or
 poetry add aiohttp-aiocache
 ```
 
+Optional `aiocache` dependencies for redis, memcached and msgpack support
+will not be installed. Install them manually if required.
+
 ## Usage
 ```python
 import asyncio
@@ -24,28 +27,34 @@ import aiohttp.web as web
 from aiocache import Cache
 from aiocache.serializers import PickleSerializer
 
-from aiohttp_aiocache import cache_middleware, cached
+from aiohttp_aiocache import cached, register_cache
 
-@cached
+
+@cached  # mark handler with decorator
 async def handler(_: web.Request) -> web.Response:
     await asyncio.sleep(1)
-    return web.Response(body=b"Hello world")
+    return web.Response(text="Hello world")
 
-# it's your responsibility to put cache_middleware into the right place among
-# the other middlewares
-app = web.Application(middlewares=[cache_middleware])
-app.router.add_route('GET', '/', handler)
+app = web.Application()
+app.router.add_route("GET", "/", handler)
+
+# create aiocache instance
 cache = Cache(
     Cache.MEMORY,
     serializer=PickleSerializer(),
     namespace="main",
     ttl=60,
 )
-app["cache"] = cache
+
+# register cache backend in appplication
+register_cache(app, cache)
 
 web.run_app(app)
 ```
 
+## Limitations
+
+Support caching for GET requests only.
 
 ## License
 

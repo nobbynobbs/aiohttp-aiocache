@@ -1,4 +1,4 @@
-name: News Filter
+name: aiohttp-aiocache
 
 on: [push]
 

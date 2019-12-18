@@ -1,4 +1,3 @@
-from ._decorator import cached
-from ._middleware import cache_middleware
+from ._api import cached, register_cache
 
-__all__ = ["cached", "cache_middleware"]
+__all__ = ["cached", "register_cache"]

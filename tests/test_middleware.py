@@ -1,14 +1,17 @@
-from typing import Any
+from typing import Any, Awaitable, Callable
 
 import aiohttp
 import aiohttp.web as web
 from aiocache import Cache
 from aiocache.serializers import PickleSerializer
+from aiohttp.test_utils import TestClient
 
-from aiohttp_aiocache import cache_middleware, cached
+from aiohttp_aiocache import cached, register_cache
+
+TestClientFixture = Callable[[web.Application], Awaitable[TestClient]]
 
 
-async def test_cache_middleware(aiohttp_client):
+async def test_cache_middleware(aiohttp_client: TestClientFixture) -> None:
     """
     test if cache middleware works
     and doesn't prevent other middlewares from execution
@@ -19,13 +22,18 @@ async def test_cache_middleware(aiohttp_client):
     after_cache_middleware_hits = 0
 
     @web.middleware
-    async def before_cache_middleware(request: web.Request, handler: Any):
+    async def before_cache_middleware(
+            request: web.Request, handler: Any
+    ) -> web.Response:
         nonlocal before_cache_middleware_hits
         before_cache_middleware_hits += 1
         return await handler(request)
 
     @web.middleware
-    async def after_cache_middleware(request: web.Request, handler: Any):
+    async def after_cache_middleware(
+            request: web.Request,
+            handler: Any
+    ) -> web.Response:
         nonlocal after_cache_middleware_hits
         after_cache_middleware_hits += 1
         return await handler(request)
@@ -36,9 +44,7 @@ async def test_cache_middleware(aiohttp_client):
         handler_hits += 1
         return web.Response(body=b"Hello world")
 
-    app = web.Application(middlewares=[
-        before_cache_middleware, cache_middleware, after_cache_middleware
-    ])
+    app = web.Application(middlewares=[before_cache_middleware])
     app.router.add_route('GET', '/', handler)
     cache = Cache(
         Cache.MEMORY,
@@ -46,7 +52,10 @@ async def test_cache_middleware(aiohttp_client):
         namespace="0",
         ttl=60,
     )
-    app["cache"] = cache
+    register_cache(app, cache)
+
+    # it's artificial case
+    app.middlewares.append(after_cache_middleware)
     client = await aiohttp_client(app)
 
     hits = 10
@@ -56,11 +65,13 @@ async def test_cache_middleware(aiohttp_client):
         assert resp.status == 200
 
     assert handler_hits == 1
-    assert before_cache_middleware_hits == hits
     assert after_cache_middleware_hits == 1
+    assert before_cache_middleware_hits == hits
 
 
-async def test_middleware_bypass_not_decorated_handlers(aiohttp_client):
+async def test_middleware_bypass_not_decorated_handlers(
+        aiohttp_client: TestClientFixture
+) -> None:
     """check if middleware doesn't affect excess handlers"""
 
     handler_hits = 0
@@ -70,9 +81,9 @@ async def test_middleware_bypass_not_decorated_handlers(aiohttp_client):
         handler_hits += 1
         return web.Response(body=b"Hello world")
 
-    app = web.Application(middlewares=[cache_middleware])
+    app = web.Application()
     app.router.add_route('GET', '/', handler)
-    app["cache"] = None
+    register_cache(app, None)
     client = await aiohttp_client(app)
 
     hits = 10
@@ -84,7 +95,9 @@ async def test_middleware_bypass_not_decorated_handlers(aiohttp_client):
     assert handler_hits == hits
 
 
-async def test_middleware_bypass_post_requests(aiohttp_client):
+async def test_middleware_bypass_post_requests(
+        aiohttp_client: TestClientFixture
+) -> None:
     handler_hits = 0
 
     @cached
@@ -93,9 +106,9 @@ async def test_middleware_bypass_post_requests(aiohttp_client):
         handler_hits += 1
         return web.Response(body=b"Hello world")
 
-    app = web.Application(middlewares=[cache_middleware])
+    app = web.Application()
     app.router.add_route('POST', '/', handler)
-    app["cache"] = None  # must not be used
+    register_cache(app, None)  # must not be used
     client = await aiohttp_client(app)
 
     hits = 10
@@ -107,7 +120,9 @@ async def test_middleware_bypass_post_requests(aiohttp_client):
     assert handler_hits == hits
 
 
-async def test_exception_in_cache_backend(aiohttp_client):
+async def test_exception_in_cache_backend(
+        aiohttp_client: TestClientFixture
+) -> None:
     """check if application still works if cache backend is misconfigured
     or cache backend doesn't work"""
     handler_hits = 0
@@ -118,9 +133,7 @@ async def test_exception_in_cache_backend(aiohttp_client):
         handler_hits += 1
         return web.Response(body=b"Hello world")
 
-    app = web.Application(middlewares=[
-        cache_middleware
-    ])
+    app = web.Application()
     app.router.add_route('GET', '/', handler)
     cache = Cache(
         Cache.REDIS,
@@ -129,12 +142,12 @@ async def test_exception_in_cache_backend(aiohttp_client):
         namespace="main",
         ttl=60,
     )
-    app["cache"] = cache
+    register_cache(app, cache)
     client = await aiohttp_client(app)
 
     hits = 10
     for i in range(hits):
-        resp: aiohttp.ClientResponse = await client.get("/")
+        resp = await client.get("/")
         assert await resp.read() == b"Hello world"
         assert resp.status == 200
     assert handler_hits == hits

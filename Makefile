@@ -17,3 +17,4 @@ lint:
 
 mypy:
 	poetry run mypy -p aiohttp_aiocache
+	poetry run mypy tests
