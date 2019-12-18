@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "aiohttp-aiocache"
+version = "0.1.0"
+description = "Caching middleware for aiohttp server with aiocache under the hood"
+authors = ["Roman Bolkhovitin <rbolkhovitin@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+aiocache = "^0.11.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+aiohttp = "^3.6.2"
+pytest-aiohttp = "^0.3.0"
+pytest-cov = "^2.8.1"
+aioredis = "^1.3.1"
+mypy = "^0.760"
+flake8 = "^3.7.9"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

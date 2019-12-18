@@ -1,0 +1,16 @@
+### IDE and Editors
+.idea/
+.vscode/
+
+### venvs, caches, dist files etc
+# directories
+.venv/
+*.egg-info/
+.pytest_cache/
+htmlcov/
+__pycache__/
+.mypy_cache/
+# files
+*.py[co]
+.coverage
+.python-version
