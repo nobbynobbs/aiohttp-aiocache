@@ -1,0 +1,26 @@
+name: publish
+on: [release]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+        make install
+    - name: build dists
+      run: |
+        make build
+    - name: publish package
+      env:
+        PYPI_LOGIN: ${{ secrets.PYPI_LOGIN }}
+        PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        make publish

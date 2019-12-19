@@ -1,4 +1,4 @@
-.PHONY: tests
+.PHONY: tests build
 
 install:
 	poetry install
@@ -18,3 +18,9 @@ lint:
 mypy:
 	poetry run mypy -p aiohttp_aiocache
 	poetry run mypy tests
+
+build:
+	poetry build
+
+publish:
+	poetry publish -u $PYPI_LOGIN -p $PYPI_PASSWORD
