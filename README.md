@@ -1,5 +1,8 @@
 # aiohttp-aiocache
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/4b6f49c9d1e4e1e9963d/maintainability)](https://codeclimate.com/github/nobbynobbs/aiohttp-aiocache/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/4b6f49c9d1e4e1e9963d/test_coverage)](https://codeclimate.com/github/nobbynobbs/aiohttp-aiocache/test_coverage)
+
 Caching middleware for [aiohttp](https://github.com/aio-libs/aiohttp) server
 with [aiocache](https://github.com/argaen/aiocache) under the hood.
 Inspired by [aiohttp-cache](https://github.com/cr0hn/aiohttp-cache).
