@@ -3,7 +3,20 @@ name = "aiohttp-aiocache"
 version = "0.1.0"
 description = "Caching middleware for aiohttp server with aiocache under the hood"
 authors = ["Roman Bolkhovitin <rbolkhovitin@gmail.com>"]
+
 readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/nobbynobbs/aiohttp-aiocache"
+repository = "https://github.com/nobbynobbs/aiohttp-aiocache"
+keywords = ["cache", "aiohttp", "redis", "memcached"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: Aiohttp",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Typing :: Typed",
+]
+
 
 [tool.poetry.dependencies]
 python = "^3.6"

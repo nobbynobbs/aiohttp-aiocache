@@ -8,6 +8,7 @@
 *.egg-info/
 .pytest_cache/
 htmlcov/
+dist/
 __pycache__/
 .mypy_cache/
 # files
