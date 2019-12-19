@@ -22,6 +22,11 @@ jobs:
       - name: Check typing with mypy
         run: |
           make mypy
+      - name: Test & publish code coverage
+        uses: paambaati/codeclimate-action@v2.3.0
+        with:
+          coverageCommand: make tests-cov-report
+          debug: true
 
   test:
     runs-on: ${{ matrix.os }}
@@ -42,4 +47,4 @@ jobs:
         make install
     - name: Test with pytest
       run: |
-        make tests-cov
+        make tests
