@@ -23,4 +23,4 @@ build:
 	poetry build
 
 publish:
-	poetry publish -u $PYPI_LOGIN -p $PYPI_PASSWORD
+	poetry publish -u $(PYPI_LOGIN) -p $(PYPI_PASSWORD)
